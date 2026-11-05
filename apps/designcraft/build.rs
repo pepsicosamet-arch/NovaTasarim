@@ -14,10 +14,10 @@ fn main() {
     }
     let mut res = winresource::WindowsResource::new();
     res.set_icon("../../assets/app-icon/designcraft.ico")
-        .set("ProductName", "NOVA Tasarim")
-        .set("FileDescription", "NOVA Tasarim page layout")
-        .set("CompanyName", "Samet Sahin")
-        .set("LegalCopyright", "Copyright (c) the NOVA Tasarim authors. MIT OR Apache-2.0.")
+        .set("ProductName", "NOVA Tasarım")
+        .set("FileDescription", "NOVA Tasarım page layout")
+        .set("CompanyName", "Learning Machines LLC")
+        .set("LegalCopyright", "Copyright (c) the NOVA Tasarım authors. MIT OR Apache-2.0.")
         .set("OriginalFilename", "designcraft.exe")
         .set("InternalName", "designcraft");
     if let Err(e) = res.compile() {
