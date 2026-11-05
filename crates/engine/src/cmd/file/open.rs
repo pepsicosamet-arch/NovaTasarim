@@ -271,7 +271,7 @@ mod document_fonts_tests {
         // The extension decides (any case), not the bytes: no InDesign-made file is needed.
         let dir = temp_dir("indd");
         let path = dir.join("Brochure.INDD");
-        std::fs::write(&path, b"not a NOVA Tasarım document").unwrap();
+        std::fs::write(&path, b"not a NOVA Tasarim document").unwrap();
         let mut s = Session::new();
         let e = s.execute("file.open", &json!({"path": path.to_string_lossy()})).unwrap_err().to_string();
         assert!(e.contains("InDesign Markup (IDML)") && !e.contains("expected value"), "{e}");
