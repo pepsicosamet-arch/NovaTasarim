@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <?ifndef HasCraftFontLicences ?>
+  <?define HasCraftFontLicences=0 ?>
+  <?endif?>
+  <Package Name="NOVA Tasarim" Manufacturer="Samet Sahin" Version="$(var.Version)" UpgradeCode="391366F1-69E1-5323-ABB1-2B0D9E1E0CCD" Scope="perUserOrMachine" Compressed="yes" Language="1033">
+    <SummaryInformation Description="NOVA Tasarim page layout and publishing" Manufacturer="Samet Sahin" />
+    <?include $(sys.SOURCEFILEDIR)install-policy.wxi?>
+    <!-- Same-version upgrades let successive pre-releases of one X.Y.Z replace each other
+         (MSI versions are numeric, so 1.2.3-rc.1 and 1.2.3-rc.2 are both 1.2.3). -->
+    <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer version of NOVA Tasarim is already installed." />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <Icon Id="DesigncraftIcon.ico" SourceFile="$(var.IconPath)" />
+    <Property Id="ARPPRODUCTICON" Value="DesigncraftIcon.ico" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/pepsicosamet-arch/NovaTasarim" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://github.com/pepsicosamet-arch/NovaTasarim" />
+    <Property Id="ARPHELPLINK" Value="https://www.instagram.com/xsametsahinx" />
+
+    <!-- Shared native setup UI, including install/uninstall completion. -->
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="CraftSuiteFolder" Name="NOVA">
+        <Directory Id="INSTALLFOLDER" Name="NOVA Tasarim" />
+      </Directory>
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder" />
+
+    <Feature Id="Main" Title="NOVA Tasarim" Level="1">
+      <?if $(var.HasCraftFontLicences) = 1 ?>
+      <ComponentGroupRef Id="CraftFontLicences" />
+      <?endif?>
+      <ComponentGroupRef Id="DesigncraftFiles" />
+      <ComponentGroupRef Id="CraftInstallerSettings" />
+    </Feature>
+    <!-- Shared full UI; app installation policy remains below. -->
+    <UIRef Id="CraftInstallerUI" />
+  </Package>
+
+  <Fragment>
+    <?if $(var.HasCraftFontLicences) = 1 ?>
+    <ComponentGroup Id="CraftFontLicences" Directory="INSTALLFOLDER">
+      <Files Include="$(var.DocsDir)\**" />
+    </ComponentGroup>
+    <?endif?>
+    <ComponentGroup Id="DesigncraftFiles" Directory="INSTALLFOLDER">
+      <Component Id="DesigncraftNotice">
+        <File Id="DesigncraftNoticeFile" Source="$(var.BinDir)\NOTICE" KeyPath="yes" />
+      </Component>
+      <Component Id="DesigncraftApp" Guid="E5D700BC-5A39-5A06-ACC7-8FAD78B3A055">
+        <File Id="DesigncraftExe" Source="$(var.BinDir)\designcraft.exe" KeyPath="yes">
+          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="NOVA Tasarim" Description="NOVA Tasarim page layout and publishing" WorkingDirectory="INSTALLFOLDER" Advertise="yes" Icon="DesigncraftIcon.ico" IconIndex="0" />
+        </File>
+
+        <!-- .designcraft: NOVA Tasarim's own format; NOVA Tasarim is its default app. -->
+        <ProgId Id="Designcraft.Document" Description="NOVA Tasarim Document" Icon="DesigncraftExe" IconIndex="0">
+          <Extension Id="designcraft" ContentType="application/x-designcraft">
+            <Verb Id="open" Command="Open" TargetFile="DesigncraftExe" Argument="&quot;%1&quot;" />
+          </Extension>
+        </ProgId>
+        <!-- IDML: offered under "Open with", never forced as the default. -->
+        <ProgId Id="Designcraft.Idml" Description="IDML Document" Icon="DesigncraftExe" IconIndex="0" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\Designcraft.Idml\shell\open\command" Value="&quot;[#DesigncraftExe]&quot; &quot;%1&quot;" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\.idml\OpenWithProgids" Name="Designcraft.Idml" Value="" Type="string" />
+
+        <!-- "Open with" app list and the Run dialog (Win+R "designcraft"). -->
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\designcraft.exe" Name="FriendlyAppName" Value="NOVA Tasarim" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\designcraft.exe\shell\open\command" Value="&quot;[#DesigncraftExe]&quot; &quot;%1&quot;" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\designcraft.exe\SupportedTypes" Name=".designcraft" Value="" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\designcraft.exe\SupportedTypes" Name=".idml" Value="" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\designcraft.exe" Value="[#DesigncraftExe]" Type="string" />
+      <RegistryValue Root="HKMU" Key="Software\NOVA Tasarim" Name="InstallDir" Value="[INSTALLFOLDER]" Type="string" />
+      </Component>
+
+      <Component Id="DesigncraftCli">
+        <File Id="DesigncraftCliExe" Source="$(var.BinDir)\designcraft-cli.exe" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>
